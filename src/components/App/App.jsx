@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import styles from './App.module.css';
 import ContactForm from '../ContactForm/ContactForm'
+import Filtr from '../Filtr/Filtr';
+import ContactList from '../ContactList/ContactList';
+import { nanoid } from 'nanoid';
 
 export class App extends Component {
   state = {
@@ -11,11 +14,67 @@ export class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    } 
+  } 
+  
+
+  addContact = ({ name, number }) => {
+    this.setState(({ contacts }) => {
+      const onContact = contacts.find(contact => contact.name === name)
+
+      if (onContact) {
+        alert(`${name} is already in contact`);
+        return contacts;
+      } else {
+        const newContact = {
+          name,
+          number,
+          id: nanoid(),
+        }
+        return [newContact, ...contacts]
+      }
+    })
+  }
+
+  deleteContact = () => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== nanoid)
+    }))
+  }
+
+  changeFiltr = (event) => {
+    this.setState({filter: event.target.value})
+  }
+
+  getFiltersContacts = () => {
+    const normalizedFilter = this.state.filter.toLowerCase();
+
+    return this.state.contacts
+      .map(
+        contact =>
+          contact.name.toLowerCase().includes(normalizedFilter) && contact
+      )
+      .filter(contact => contact !== false);
+  };
+
+
+
   render() { 
+    const filtredContacts = this.getFiltersContacts();
+    const contact = this.addContact;
+    const filter = this.changeFiltr;
+    const delet = this.deleteContact;
+    const value = this.state.filter;
+    
     return (
-      <div>
-        <ContactForm/>
+      <div className={styles.form}>
+        <h1>Phonebook</h1>
+        <ContactForm onSubmit={contact} />
+        <h2>Contacts</h2>
+        <Filtr value={value} onChange={filter} />
+        <ContactList
+          contacts={filtredContacts}
+          onDeleteContact={delet}
+        />
       </div>
     );
   }
