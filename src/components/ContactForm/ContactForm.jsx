@@ -1,28 +1,56 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
-import style from './ContactForm.module.css';
+import styles from './ContactForm.module.css';
 
+const CONTACT_STATE = {
+    name: '',
+    number: '',
+}
 
 class ContactForm extends Component {
-    state = {  } 
+    state = {
+        ...CONTACT_STATE
+    } 
+
+    handleChange = (event) => {
+        const { name, value } = event.currentTarget;
+        this.setState({[name]: value});
+    }
+
+    handleSubmit = (event) => {
+        event.preventDefault();
+        this.props.onSubmit(this.state);
+        this.reset();
+    }
+
+    reset = () => {
+        this.setState({...CONTACT_STATE});
+    }
+
+
+    
+
     render() { 
         return (
             <div>
-                <form className={style.submit}>
-                    <label className={style.label}>
+                <form className={styles.submit} onSubmit={this.handleSubmit}>
+                    <label className={styles.label}>
                         Name
                         <input
+                            className={styles.input}
                             type="text"
                             name="name"
                             pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
                             title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+                            value={this.state.name}
+                            onChange={this.handleChange}
                             required
                         />
                     </label>
-                    <label className={style.label}>
+                    <label className={styles.label}>
                     Number
                         <input
-                            className={style.input}
+                            className={styles.input}
                             type="tel"
                             name="number"
                             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -33,7 +61,7 @@ class ContactForm extends Component {
                         />
                     </label>
                     <button
-                        className={style.btn}
+                        className={styles.btn}
                         type="submit"
                         disabled={!this.state.name && !this.state.number}
                     >
@@ -45,4 +73,8 @@ class ContactForm extends Component {
     }
 }
  
+ContactForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
+
 export default ContactForm;

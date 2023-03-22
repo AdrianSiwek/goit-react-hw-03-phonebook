@@ -17,32 +17,36 @@ export class App extends Component {
   } 
   
 
+
+
   addContact = ({ name, number }) => {
     this.setState(({ contacts }) => {
-      const onContact = contacts.find(contact => contact.name === name)
+      const onContact = contacts.find(contact => contact.name === name);
 
       if (onContact) {
         alert(`${name} is already in contact`);
         return contacts;
       } else {
         const newContact = {
-          name,
-          number,
-          id: nanoid(),
-        }
-        return [newContact, ...contacts]
+        id: nanoid(),
+        name,
+        number,
+      };
+        return {
+          contacts: [newContact, ...contacts],
+        };
       }
-    })
-  }
+    });
+  };
 
-  deleteContact = () => {
+  deleteContact = contactId => {
     this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== nanoid)
-    }))
-  }
+      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
+    }));
+  };
 
   changeFiltr = (event) => {
-    this.setState({filter: event.target.value})
+    this.setState({filter: event.currentTarget.value})
   }
 
   getFiltersContacts = () => {
@@ -56,7 +60,19 @@ export class App extends Component {
       .filter(contact => contact !== false);
   };
 
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    const parsContacts = JSON.parse(contacts);
+    if (parsContacts) {
+      this.setState({contacts: parsContacts});
+    }
+  }
 
+  componentDidUpdate(prevState) {
+    if (this.state.contacts !== prevState.contacts) {
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  }
+}
 
   render() { 
     const filtredContacts = this.getFiltersContacts();
